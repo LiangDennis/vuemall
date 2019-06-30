@@ -10,15 +10,15 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 const portfinder = require('portfinder')
 
-// 定义后端路由
+// 定义后端路由，当有api接口后必须删除
 // 请求server
-const express = require('express')
-const app =express();
-// 加载数据
-var goodsData = require("../mock/goods.json");//通过require的形式加载json文件
-// 启动router，通过路由请求数据
-var router= express.Router();//获取服务器的路由
-app.use(router);//app要用路由
+// const express = require('express')
+// const app =express();
+// // 加载数据
+// var goodsData = require("../mock/goods.json");//通过require的形式加载json文件
+// // 启动router，通过路由请求数据
+// var router= express.Router();//获取服务器的路由
+// app.use(router);//app要用路由
 // 在devserver中加上before方法
 
 // 设置前端获取的数据，视频的方式
@@ -59,14 +59,14 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     watchOptions: {
       poll: config.dev.poll,
     },
-    before (app) {
-      app.get("/goods",(req,res) => {
-        res.json({
-          error:0,
-          dataresult:goodsData
-        });
-      })
-    }
+    // before (app) {
+    //   app.get("/goods",(req,res) => {
+    //     res.json({
+    //       error:0,
+    //       dataresult:goodsData
+    //     });
+    //   })
+    // }
   },
   plugins: [
     new webpack.DefinePlugin({

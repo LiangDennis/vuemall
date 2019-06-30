@@ -42,11 +42,11 @@
                 <ul>
                   <li v-for="(item, index) in goodsData" :key="index">
                     <div class="pic">
-                      <a href="#"><img v-lazy="'static/'+item.productImg" alt=""></a>
+                      <a href="#"><img v-lazy="'static/'+item.productImage" alt=""></a>
                     </div>
                     <div class="main">
                       <div class="name">{{item.productName}}</div>
-                      <div class="price">{{item.productPrice}}</div>
+                      <div class="price">{{item.salePrice}}</div>
                       <div class="btn-area">
                         <a href="javascript:;" class="btn btn--m">加入购物车</a>
                       </div>
@@ -110,7 +110,7 @@ export default{
       */
       axios.get("/goods").then(res => {
         // console.log(res);
-        this.goodsData = res.data.dataresult.result;
+        this.goodsData = res.data.result.list;
       }).catch(err => {
         console.log("fail"+err);
       });
