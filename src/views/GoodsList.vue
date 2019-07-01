@@ -8,8 +8,14 @@
         <div class="container">
           <div class="filter-nav">
             <span class="sortby">Sort by:</span>
-            <a href="javascript:void(0)" class="default cur">Default</a>
-            <a href="javascript:void(0)" class="price">Price <svg class="icon icon-arrow-short"><use xlink:href="#icon-arrow-short"></use></svg></a>
+            <a href="javascript:void(0)" 
+              :class="{'default':true, 'cur':isDefault}"
+              @click="sortMethod('default')"
+            >Default</a>
+            <a href="javascript:void(0)" 
+              :class="{'price':true,'cur':isPrice}"
+              @click="sortMethod('price')"
+            >Price <svg class="icon icon-arrow-short"><use xlink:href="#icon-arrow-short"></use></svg></a>
             <a href="javascript:void(0)" class="filterby stopPop"
               @click="showFilterPop"
             >Filter by</a>
@@ -53,6 +59,10 @@
                     </div>
                   </li>
                 </ul>
+                <!-- 加载插件 -->
+                <div class="load-more" v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="30">
+                  加载中。。。
+                </div>
               </div>
             </div>
           </div>
@@ -62,6 +72,14 @@
       <nav-footer></nav-footer>
     </div>
 </template>
+<style scoped>
+  .load-more {
+    margin: 0 auto;
+    height: 100px;
+    width: 100px;
+  }
+</style>
+
 <script>
 import '@/assets/css/base.css'
 import '@/assets/css/product.css'
@@ -93,7 +111,15 @@ export default{
           // 控制选中的是某一项，默认选中all项
           priceChecked:"all",
           filterBy:false,
-          overLayFlag:false
+          overLayFlag:false,
+          // 排序和分页
+          isPrice:false,//设置样式
+          isDefault:true,//设置样式
+          page:1,
+          pageSize:7,
+          sort:true,
+          // 控制是否启用滚动加载
+          busy:true
         }
     },
     components:{
@@ -102,18 +128,20 @@ export default{
       NavBread
     },
     mounted () {
+      // 默认加载default
+      this.sortMethod('default');
       /*说明：
        *1.res对象必须通过data属性才能获取到数据_1
        *2.数据_1即后端配置的dataresult和error对象数据的返回
        *3.通过对dataresult的访问才获得json文件
        *4.最后通过.result才最终获取到result的数据
       */
-      axios.get("/goods").then(res => {
-        // console.log(res);
-        this.goodsData = res.data.result.list;
-      }).catch(err => {
-        console.log("fail"+err);
-      });
+      // axios.get("/goods").then(res => {
+      //   // console.log(res);
+      //   this.goodsData = res.data.result.list;
+      // }).catch(err => {
+      //   console.log("fail"+err);
+      // });
     },
     methods:{
       showFilterPop () {
@@ -128,6 +156,73 @@ export default{
       closePop () {
         this.filterBy = false;
         this.overLayFlag = false;
+      },
+      // 排序与分页
+      getGoodsList(flag) {
+        let url = "/goods/sort";
+        let param = {
+          page:this.page,
+          pageSize:this.pageSize,
+          sort:this.sort?1:-1
+        };
+        axios.get(url,{params:param}).then(res => {
+          // console.log(res);
+          // 判断数据是否获取成功
+          if(res.status == "200") {
+            // flag 表示分页的标志
+            // 成功获取数据
+            if(flag) {
+              this.goodsData = this.goodsData.concat(res.data.result.list);
+              // 判断是否还有数据加载
+              if(res.data.result.count === 0) {
+                this.busy = true;
+              }else {
+                this.busy = false;
+              }
+            }else {
+              this.goodsData = res.data.result.list;
+              this.busy = false;//开始启用
+            }
+          }else {
+            // 否则为空
+            this.goodsData = [];
+          }
+        }).catch(err => {
+          console.log("fail"+err);
+        });
+      },
+      sortMethod (flag)  {
+        // 加载排序的方式
+        if(flag == "price") {
+          this.isPrice = true;
+          this.isDefault = false;
+          this.sort = !this.sort;
+          // 从低到高排序
+          this.getGoodsList();
+        }else if(flag == 'default') {
+          // 加载default的方式
+          this.isPrice = false;
+          this.isDefault = true;
+          this.sort = false;//重置第一次排序
+          axios.get("/goods").then(res => {
+            // console.log(res);
+            this.goodsData = res.data.result.list;
+          }).catch(err => {
+            console.log("fail"+err);
+          });
+        }else {
+          // 发生未知错误
+          alert("Wrong, unexpected error");
+        }
+      },
+      // 滚动加载的方法
+      loadMore () {
+        this.busy = true;
+        // 由于scroll有很多请求，不能直接使用
+        setTimeout(() => {
+          this.page++;
+          this.getGoodsList(true);
+        },500);
       }
     }
 }
