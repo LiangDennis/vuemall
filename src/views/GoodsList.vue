@@ -61,7 +61,8 @@
                 </ul>
                 <!-- 加载插件 -->
                 <div class="load-more" v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="30">
-                  加载中。。。
+                  <!-- 加载中。。。 -->
+                  <img src="./../assets/loading-spinning-bubbles.svg" v-show="loading">
                 </div>
               </div>
             </div>
@@ -97,6 +98,10 @@ export default{
           priceFilter:[
             {
               startPrice:0.00,
+              endPrice:100.00
+            },
+            {
+              startPrice:100.00,
               endPrice:500.00
             },
             {
@@ -119,7 +124,9 @@ export default{
           pageSize:7,
           sort:true,
           // 控制是否启用滚动加载
-          busy:true
+          busy:true,
+          // 默认不显示loading图片
+          loading:false
         }
     },
     components:{
@@ -136,12 +143,6 @@ export default{
        *3.通过对dataresult的访问才获得json文件
        *4.最后通过.result才最终获取到result的数据
       */
-      // axios.get("/goods").then(res => {
-      //   // console.log(res);
-      //   this.goodsData = res.data.result.list;
-      // }).catch(err => {
-      //   console.log("fail"+err);
-      // });
     },
     methods:{
       showFilterPop () {
@@ -151,25 +152,34 @@ export default{
       setPriceFilter (index) {
         // 同时保证点击all时也关闭
         this.priceChecked = index;
-        this.closePop();
+        this.page = 1;
+        this.sort = 1;
+        this.getGoodsList();
+        // this.closePop();
       },
       closePop () {
         this.filterBy = false;
         this.overLayFlag = false;
       },
       // 排序与分页
+      // flag 表示分页的标志
       getGoodsList(flag) {
         let url = "/goods/sort";
         let param = {
           page:this.page,
           pageSize:this.pageSize,
-          sort:this.sort?1:-1
+          sort:this.sort?1:-1,
+          // 价格过滤
+          priceLevel:this.priceChecked
         };
+        // 接口还没有请求前，显示loading
+        this.loading = true;
         axios.get(url,{params:param}).then(res => {
+          // 接口请求完成后，不显示loading
+          this.loading = false;
           // console.log(res);
           // 判断数据是否获取成功
           if(res.status == "200") {
-            // flag 表示分页的标志
             // 成功获取数据
             if(flag) {
               this.goodsData = this.goodsData.concat(res.data.result.list);

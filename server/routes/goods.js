@@ -54,11 +54,31 @@ router.get("/sort",(req,res,next) => {
     let page = parseInt(req.param("page"));
     let pageSize = parseInt(req.param("pageSize"));
     let sort = req.param("sort");
-    console.log(sort);
+    // console.log(sort);
     let skip = (page - 1) * pageSize;
+    // 价格过滤
+    let priceLevel = req.param("priceLevel");
     // 返回的是文档，res.json输出是一个json，res.end输出是一个文本
     // mongodb提供了分页和条数的方法，skip和limit
     let params = {};
+    // 价格过滤
+    var priceGt = "",priceLte = "";
+    if(priceLevel != "all") {
+        switch(priceLevel) {
+            case "0" : priceGt = 0;priceLte = 100;break;
+            case "1" : priceGt = 100;priceLte = 500;break;
+            case "2" : priceGt = 500;priceLte = 1000;break;
+            case "3" : priceGt = 1000;priceLte = 5000;break;
+        }
+        console.log(priceGt+"  "+priceLte);
+        // 如果包含了就要加上这个变量
+        params = {
+            salePrice:{
+                $gt:priceGt,
+                $lte:priceLte
+            }
+        }
+    }
     let goodsModel = Goods.find(params).skip(skip).limit(pageSize);
     goodsModel.sort({"salePrice":sort});
     goodsModel.exec((err, doc) => {
