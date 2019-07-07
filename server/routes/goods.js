@@ -102,5 +102,97 @@ router.get("/sort",(req,res,next) => {
     });
 });
 
+//加入到购物车，一级路由为/goods，二级路由为/addCart
+router.post("/addCart", (req, res, next) => {
+    var userId = "100000077";//预设id
+    var productId = req.body.productId;
+    var User = require("../modules/user")//引入模型
+
+    User.findOne({userId:userId}, (err1, userDoc) => {
+        if(err1) {
+            res.json({
+                status:"1",
+                msg:err1.message
+            });
+        }else {
+            // console.log("userDoc:"+userDoc);
+            if(userDoc) {
+                let goodsItem = "";
+                userDoc.cartList.forEach(item => {
+                    if(item.productId == productId) {
+                        goodsItem = item;
+                        item.productNum++;
+                    }
+                });
+                if(goodsItem) {
+                    userDoc.save((err, doc) => {
+                        if(err) {
+                            res.json({
+                                status:"1",
+                                msg:err.message
+                            });
+                        }else {
+                            res.json({
+                                status:"0",
+                                msg:"",
+                                result:"suc"
+                            });
+                        }
+                    });
+                }else {
+                    Goods.findOne({productId:productId}, (err2, listDoc) => {
+                        if(err2) {
+                            res.json({
+                                status:"1",
+                                msg:err2.message
+                            });
+                        }else {
+                            if(listDoc) {
+                                // console.log("listDoc:"+listDoc);
+                                // console.log("listDoc_salePrice:"+("salePrice" in listDoc._doc));
+                                // Object.keys(listDoc).forEach(key => {
+                                //     console.log(listDoc[key]);
+                                // });
+                                // let newList = {};
+                                // newList._id = listDoc._id;
+                                // newList.productId = listDoc.productId;
+                                // newList.productName = listDoc.productName;
+                                // newList.salePrice = listDoc.salePrice;
+                                // newList.productImage = listDoc.productImage;
+                                // newList.productNum = "1";
+                                // newList.checked = "1";
+                                listDoc._doc.productNum = "1";
+                                listDoc._doc.checked = "1";
+                                // console.log("new listDoc"+listDoc);
+                                // console.log("productNum:"+newList.productNum);
+                                // console.log("checked:"+newList.checked);
+                                // console.log("newList_salePrice:"+newList.salePrice);
+                                // console.log("newDoc:"+newList);
+                                // 往上一层定义的userDoc存入数据
+                                userDoc.cartList.push(listDoc);
+                                // console.log(userDoc);
+                                userDoc.save((err3, saveDoc) => {
+                                    if(err3) {
+                                        res.json({
+                                            status:"1",
+                                            msg:err3.message
+                                        });
+                                    }else {
+                                        res.json({
+                                            status:"0",
+                                            msg:"",
+                                            result:"suc"
+                                        });
+                                    }
+                                })
+                            }
+                        }
+                    });
+                }
+            }
+        }
+    });
+});
+
 // mongoose.disconnect("mongodb://127.0.0.1:27017/mall");
 module.exports = router;
