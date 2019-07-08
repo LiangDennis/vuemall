@@ -106,7 +106,7 @@ router.get("/sort",(req,res,next) => {
 router.post("/addCart", (req, res, next) => {
     var userId = "100000077";//预设id
     var productId = req.body.productId;
-    var User = require("../modules/user")//引入模型
+    var User = require("../modules/Users")//引入模型
 
     User.findOne({userId:userId}, (err1, userDoc) => {
         if(err1) {

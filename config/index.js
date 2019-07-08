@@ -14,6 +14,12 @@ module.exports = {
       // 只适合开发阶段
       "/goods":{
         target:"http://localhost:3000"
+      },
+      "/goods/*" :{
+        target:"http://localhost:3000"
+      },
+      "/users/*" : {
+        target:"http://localhost:3000"
       }
     },
 
