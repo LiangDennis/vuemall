@@ -22,6 +22,7 @@
           >Login</a>
           <a href="javascript:void(0)" class="navbar-link" 
             v-show="nickName"
+            @click="logout"
           >Logout</a>
           <div class="navbar-cart-container">
             <span class="navbar-cart-count"></span>
@@ -96,7 +97,7 @@ export default {
         userName:this.userName,
         userPwd:this.userPwd
       }).then(res => {
-        console.log(res);
+        // console.log(res);
         let data = res.data;
         if(data.status == "0") {
           this.errorTip = false;
@@ -106,7 +107,15 @@ export default {
           this.errorTip = true;
         }
       });
-    }
+    },
+    logout () {
+      axios.post("/users/logout").then(res => {
+        let data = res.data;
+        if(data.status == "0") {
+          this.nickName = "";
+        }
+      });
+    },
   }
 }
 </script>
