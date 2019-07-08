@@ -28,6 +28,10 @@ router.post('/login', (req, res, next) => {
             path:'/',//存到根目录
             maxAge:1000*60*60
           });
+          res.cookie("userName", doc.userName, {
+            path:'/',//存到根目录
+            maxAge:1000*60*60
+          });
           res.json({
             status:'0',
             msg:'',
@@ -52,11 +56,32 @@ router.post("/logout", (req, res, next) => {
     path:"/",
     maxAge:-1
   });
+  res.cookie("userName","", {
+    path:"/",
+    maxAge:-1
+  });
   res.json({
     status:"0",
     msg:'',
     result:"suc"
   });
+});
+
+// 校验登录，在加载组件时，即mounted时就需要校验
+router.get("/checkLogin", (req, res, next) => {
+  if(req.cookies.userId) {
+    res.json({
+      status:"0",
+      msg:"",
+      result:req.cookies.userName
+    });
+  }else {
+    res.json({
+      status:"1",
+      msg:"未登录",
+      result:""
+    });
+  }
 });
 
 module.exports = router;

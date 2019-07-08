@@ -216,7 +216,7 @@ export default{
           this.isPrice = false;
           this.isDefault = true;
           this.sort = false;//重置第一次排序
-          axios.get("/goods").then(res => {
+          axios.get("/goods/list").then(res => {//为拦截添加的list，以满足登录拦截的需求
             // console.log(res);
             this.goodsData = res.data.result.list;
           }).catch(err => {
@@ -240,11 +240,12 @@ export default{
         axios.post("/goods/addCart",{
           productId:productId
         }).then(res => {
-          if(res.status =="200") {
+          // 一直都需要data才能访问后端接口设置status
+          if(res.data.status =="0") {
             // console.log(res);
             alert("加入成功");
           }else {
-            alert("fail");
+            alert(res.data.msg);
           }
         });
       }

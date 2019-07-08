@@ -17,7 +17,8 @@ mongoose.connection.on("disconnected",() => {
     console.log("MongoDB connected disconnected");
 });
 
-router.get("/",(req,res,next) => {
+// 为拦截所需添加的list，进行区分
+router.get("/list",(req,res,next) => {
     // 实现排序，分页，原生的node使用req.url获取字段，通过express封装可以通过param获取字段
     // let page = parseInt(req.param("page"));
     // let pageSize = parseInt(req.param("pageSize"));
@@ -106,7 +107,7 @@ router.get("/sort",(req,res,next) => {
 router.post("/addCart", (req, res, next) => {
     var userId = "100000077";//预设id
     var productId = req.body.productId;
-    var User = require("../modules/Users")//引入模型
+    var User = require("../modules/users")//引入模型，大小写要匹配（通过查询GitHub上的修改记录发现的问题）如果错误，会报500错误
 
     User.findOne({userId:userId}, (err1, userDoc) => {
         if(err1) {
