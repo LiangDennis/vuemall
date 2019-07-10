@@ -15,7 +15,11 @@
             <a href="javascript:void(0)" 
               :class="{'price':true,'cur':isPrice}"
               @click="sortMethod('price')"
-            >Price <svg class="icon icon-arrow-short"><use xlink:href="#icon-arrow-short"></use></svg></a>
+            >Price 
+              <svg class="icon icon-arrow-short">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-arrow-short"></use>
+              </svg>
+            </a>
             <a href="javascript:void(0)" class="filterby stopPop"
               @click="showFilterPop"
             >Filter by</a>
@@ -71,6 +75,26 @@
         </div>
       </div>
       <div class="md-overlay" v-show="overLayFlag" @click="closePop"></div>
+      <!-- 未登录的模态框 -->
+      <modal :mdShow="mdShow" v-on:close="closeModal">
+        <p slot="message">
+          请先登录，才能加入购物车
+        </p>
+        <div slot="btnGroup">
+          <a href="javascript:;" class="btn btn--m" @click="mdShow=false">关闭</a>
+        </div>
+      </modal>
+      <!-- 已登录的模态框 -->
+      <modal :mdShow="mdShowCart" v-on:close="closeModal">
+        <p slot="message">
+          <img src="static/ok-2.png" class="addCartSuc"><br>
+          <span>加入购物车成功</span>
+        </p>
+        <div slot="btnGroup">
+          <a href="javascript:;" class="btn btn--m" @click="mdShowCart=false">继续购物</a>
+          <router-link class="btn btn--m" href="javascript:;" to="/cart">查看购物车</router-link>
+        </div>
+      </modal>
       <nav-footer></nav-footer>
     </div>
 </template>
@@ -79,6 +103,10 @@
     margin: 0 auto;
     height: 100px;
     width: 100px;
+  }
+  .addCartSuc {
+    width: 10%;
+    height: 10%;
   }
 </style>
 
@@ -90,6 +118,7 @@ import '@/assets/css/checkout.css'
 import NavHeader from '@/components/NavHeader.vue'
 import NavFooter from '@/components/NavFooter.vue'
 import NavBread from '@/components/NavBread.vue'
+import Modal from '@/components/Modal.vue'
 import axios from 'axios'
 
 
@@ -128,13 +157,16 @@ export default{
           // 控制是否启用滚动加载
           busy:true,
           // 默认不显示loading图片
-          loading:false
+          loading:false,
+          mdShow:false,
+          mdShowCart:false
         }
     },
     components:{
       NavHeader,
       NavFooter,
-      NavBread
+      NavBread,
+      Modal
     },
     mounted () {
       // 默认加载default
@@ -243,11 +275,16 @@ export default{
           // 一直都需要data才能访问后端接口设置status
           if(res.data.status =="0") {
             // console.log(res);
-            alert("加入成功");
+            // alert("加入成功");
+            this.mdShowCart = true;
           }else {
-            alert(res.data.msg);
+            this.mdShow = true;
           }
         });
+      },
+      closeModal () {
+        this.mdShow = false;
+        // this.mdShowCart = false;
       }
     }
 }
