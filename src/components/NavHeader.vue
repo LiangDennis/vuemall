@@ -51,22 +51,25 @@
             <ul>
               <li class="regi_form_input">
                 <i class="icon IconPeople"></i>
-                <input type="text" tabindex="1" name="loginname" class="regi_login_input"
+                <input type="text" tabindex="1" name="loginname" 
+                  class="regi_login_input regi_login_input_left"
                   v-model="userName"
                   placeholder="User Name"
                 >
               </li>
               <li class="regi_form_input noMargin">
                 <i class="icon IconPwd"></i>
-                <input type="password" tabindex="2" name="password" class="regi_login_input"
+                <input type="password" tabindex="2" name="password" 
+                  class="regi_login_input regi_login_input_left login-input-no input_text"
                   v-model="userPwd"
                   placeholder="Password"
+                  @keyup.enter="login"
                 >
               </li>
             </ul>
           </div>
           <div class="login-wrap">
-            <a href="javascript:;" class="btn-login" @click="login">登 录</a>
+            <a href="javascript:;" class="btn-login" @click="login" >登 录</a>
           </div>
         </div>
       </div>
