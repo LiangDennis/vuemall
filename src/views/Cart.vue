@@ -60,7 +60,10 @@
               <li v-for="(item,index) in cartList" :key="index">
                 <div class="cart-tab-1">
                   <div class="cart-item-check">
-                    <a href="javascipt:;" class="checkbox-btn item-check-btn">
+                    <a href="javascript:;" class="checkbox-btn item-check-btn" 
+                        v-bind:class="{'check':item.checked == '1'}"
+                        @click="editCart('checked',item)"
+                    >
                       <svg class="icon icon-ok">
                         <use xlink:href="#icon-ok"></use>
                       </svg>
@@ -80,9 +83,9 @@
                   <div class="item-quantity">
                     <div class="select-self select-self-open">
                       <div class="select-self-area">
-                        <a class="input-sub">-</a>
+                        <a class="input-sub" @click="editCart('minu',item)">-</a>
                         <span class="select-ipt">{{item.productNum}}</span>
-                        <a class="input-add">+</a>
+                        <a class="input-add" @click="editCart('add',item)">+</a>
                       </div>
                     </div>
                   </div>
@@ -109,7 +112,7 @@
           <div class="cart-foot-inner">
             <div class="cart-foot-l">
               <div class="item-all-check">
-                <a href="javascipt:;">
+                <a href="javascript:;">
                   <span class="checkbox-btn item-check-btn">
                       <svg class="icon icon-ok"><use xlink:href="#icon-ok"/></svg>
                   </span>
@@ -221,6 +224,27 @@
             },
             closeModal () {
                 this.modalComfirm = false;
+            },
+            // 应该考虑在改变需要提交的时候才发出请求，而不是一改变就发请求，这样请求会很频繁。
+            editCart (flag,item) {
+                if(flag == "add") {
+                    item.productNum++;//number变化，总金额也会变化
+                }else if(flag == "minu"){
+                    if(item.productNum <=1) {
+                        return;
+                    }
+                    item.productNum--;//这样其实是虚假的增大或者减少数值，不会对数据库产生影响，所以还需接口调用来改变数据库中的数据，而改变数据一般用post请求。
+                }else {
+                    item.checked = item.checked=="1"?"0":"1";
+                }
+
+                axios.post("users/cartEdit",{
+                    productNum:item.productNum,
+                    productId:item.productId,
+                    checked:item.checked
+                }).then(res => {
+                    let data = res.data;
+                });
             }
         }
     }

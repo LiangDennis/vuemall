@@ -138,4 +138,39 @@ router.post("/cartDel",(req,res,next) => {
   );
 });
 
+// 修改商品数量
+router.post("/cartEdit",(req,res,next) => {
+  let userId = req.cookies.userId;
+  let productId = req.body.productId;
+  let productNum = req.body.productNum;
+  let checked = req.body.checked;
+
+  /*
+  * 更新的条件，以此知道更新的是哪一条数据
+  * 第二个对象是需要修改成什么样。$是占位符，
+  * 第三个是回调的方法。
+  */
+  User.update({
+    userId:userId,
+    "cartList.productId":productId
+  },{
+    "cartList.$.productNum":productNum,
+    "cartList.$.checked":checked
+  }, (err,doc)=> {
+    if(err) {
+      res.json({
+        status:"1",
+        msg:err.message,
+        result:""
+      });
+    }else {
+      res.json({
+        status:"0",
+        msg:"",
+        result:"suc"
+      });
+    }
+  });
+});
+
 module.exports = router;
