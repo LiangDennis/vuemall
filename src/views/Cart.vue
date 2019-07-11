@@ -92,7 +92,9 @@
                 </div>
                 <div class="cart-tab-5">
                   <div class="cart-item-opration">
-                    <a href="javascript:;" class="item-edit-btn">
+                    <a href="javascript:;" class="item-edit-btn"
+                        @click="delCartComfirm(item.productId)"
+                    >
                       <svg class="icon icon-del">
                         <use xlink:href="#icon-del"></use>
                       </svg>
@@ -127,6 +129,15 @@
         </div>
       </div>
     </div>
+    <modal :mdShow="modalComfirm" @close="closeModal">
+        <p slot="message">
+            你确定要删除此条数据吗？
+        </p>
+        <div slot="btnGroup">
+            <a href="javascript:;" class="btn btn--m" @click="delCart">确认</a>
+            <a href="javascript:;" class="btn btn--m" @click="modalComfirm = false">关闭</a>
+        </div>
+    </modal>
     <nav-footer></nav-footer>
   </div>
 </template>
@@ -155,9 +166,9 @@
   }
 </style>
 <script>
-    import '@/assets/css/base.css'
-    import '@/assets/css/product.css'
-    import '@/assets/css/login.css'
+    // import '@/assets/css/base.css'
+    // import '@/assets/css/product.css'
+    // import '@/assets/css/login.css'
     import '@/assets/css/checkout.css'
     import NavHeader from '@/components/NavHeader.vue'
     import NavFooter from '@/components/NavFooter.vue'
@@ -168,7 +179,9 @@
     export default{
         data(){
             return{
-                cartList:[]
+                cartList:[],
+                modalComfirm:false,
+                productId:''
             }
         },
         mounted () {
@@ -186,6 +199,28 @@
                     let data = res.data;
                     this.cartList = data.result;
                 });
+            },
+            // 弹框方法
+            delCartComfirm (productId) {
+                this.productId = productId;
+                this.modalComfirm = true;
+            },
+            // 删除购物车
+            delCart () {
+                // 可以在代理中使用两个*实现所有请求的代理
+                // 可以直接修改cartList的数据，实现删除，而不是用接口
+                axios.post("/users/cartDel",{
+                    productId:this.productId
+                }).then(res => {
+                    let data = res.data;
+                    if(data.status == "0") {
+                        this.modalComfirm = false;
+                        this.init();
+                    }
+                });
+            },
+            closeModal () {
+                this.modalComfirm = false;
             }
         }
     }

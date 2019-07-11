@@ -106,4 +106,36 @@ router.get("/cartList", (req, res, next) => {
   });
 });
 
+// 购物车删除
+router.post("/cartDel",(req,res,next) => {
+  console.log("删除购物车数据");
+  let userId = req.cookies.userId;
+  let productId = req.body.productId;
+  User.update({
+      userId:userId
+    },{
+      // 删除的方式
+      $pull: {
+        "cartList":{
+          "productId":productId
+        }
+      }
+    },(err, doc) => {
+      if(err) {
+        res.json({
+          status:"1",
+          msg:err.message,
+          result:""
+        });
+      }else {
+        res.json({
+          status:"0",
+          msg:"",
+          result:"suc"
+        });
+      }
+    }
+  );
+});
+
 module.exports = router;
