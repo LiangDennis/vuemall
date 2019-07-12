@@ -77,7 +77,7 @@
                   </div>
                 </div>
                 <div class="cart-tab-2">
-                  <div class="item-price">{{item.salePrice}}</div>
+                  <div class="item-price">{{item.salePrice | currency("￥")}}</div>
                 </div>
                 <div class="cart-tab-3">
                   <div class="item-quantity">
@@ -91,7 +91,7 @@
                   </div>
                 </div>
                 <div class="cart-tab-4">
-                  <div class="item-price-total">{{item.salePrice*item.productNum}}</div>
+                  <div class="item-price-total">{{(item.salePrice*item.productNum) | currency("￥")}}</div>
                 </div>
                 <div class="cart-tab-5">
                   <div class="cart-item-opration">
@@ -112,8 +112,8 @@
           <div class="cart-foot-inner">
             <div class="cart-foot-l">
               <div class="item-all-check">
-                <a href="javascript:;">
-                  <span class="checkbox-btn item-check-btn">
+                <a href="javascript:;" @click="toggleCheckAll">
+                  <span class="checkbox-btn item-check-btn" v-bind:class="{'check':checkAllFlag}">
                       <svg class="icon icon-ok"><use xlink:href="#icon-ok"/></svg>
                   </span>
                   <span>Select all</span>
@@ -122,7 +122,7 @@
             </div>
             <div class="cart-foot-r">
               <div class="item-total">
-                Item total: <span class="total-price">500</span>
+                Item total: <span class="total-price">{{totalPrice | currency("￥")}}</span>
               </div>
               <div class="btn-wrap">
                 <a class="btn btn--red">Checkout</a>
@@ -178,6 +178,7 @@
     import NavBread from '@/components/NavBread.vue'
     import Modal from '@/components/Modal.vue'
     import axios from 'axios'
+    import {currency} from '@/util/currency'
 
     export default{
         data(){
@@ -189,6 +190,33 @@
         },
         mounted () {
             this.init();
+        },
+        // 金额数值的过滤器，局部过滤器，加s表示可以添加多个过滤器
+        // filters:{
+        //   currency:currency
+        // },
+        computed: {
+          // 当每件商品都选中时，即checkAllFlag为true，需要多定义一个计算属性
+          checkAllFlag () {
+            return this.checkCount == this.cartList.length;
+          },
+          checkCount () {
+            let i =0;
+            this.cartList.forEach((item) => {
+              if(item.checked == "1") i++;
+            });
+            return i;
+          },
+          // 实时更新总金额
+          totalPrice () {
+            let money = 0;
+            this.cartList.forEach(item => {
+              if(item.checked == "1") {
+                money += parseFloat(item.salePrice)*parseInt(item.productNum);
+              }
+            });
+            return money;
+          }
         },
         components:{
             NavHeader,
@@ -245,6 +273,26 @@
                 }).then(res => {
                     let data = res.data;
                 });
+            },
+            // 选中所有商品
+            // 由于只保存了每个商品的checked，并没有保存checkAll，即select All并没有保存到数据库中，所以刷新后会清除掉。
+            // 所以需要以每个商品的checked为条件，进行计算，即在计算属性中将select All的属性绑定到每一个商品的checked中。
+            toggleCheckAll () {
+              // 即使checkAllFlag 发生变化，但是由于计算属性中判断了length相等，所以checkAllFlag会变回原来的值，即无法改变checkAllFlag。需要定义一个新的flag，这个flag是可以改变的。
+              // checkAllFlag是实时计算的属性，无法直接赋值了。
+              let flag = !this.checkAllFlag;
+              this.cartList.forEach((item) => {
+                item.checked = flag?"1":"0";
+              });
+
+              // 接口请求
+              axios.post("users/editCheckAll",{
+                checkAll:flag
+              }).then(res => {
+                let data = res.data;
+                if(data.status == "0") {
+                }
+              });
             }
         }
     }

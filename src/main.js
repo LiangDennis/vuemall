@@ -5,9 +5,12 @@ import App from './App'
 import router from './router'
 import VueLazyLoad from 'vue-lazyload'
 import infiniteScroll from 'vue-infinite-scroll'
+import {currency} from './util/currency'
 
 Vue.config.productionTip = false
 
+// 使用filter过滤器,currency的调用，不需要括号，因为本身是一个函数。
+Vue.filter("currency",currency);
 // 使用vue-lazyload
 Vue.use(VueLazyLoad,{
   loading:"/static/loading-svg/loading-bars.svg"
