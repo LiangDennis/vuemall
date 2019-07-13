@@ -125,7 +125,10 @@
                 Item total: <span class="total-price">{{totalPrice | currency("￥")}}</span>
               </div>
               <div class="btn-wrap">
-                <a class="btn btn--red">Checkout</a>
+                <a class="btn btn--red" 
+                  v-bind:class="{'btn--dis':checkCount==0}"
+                  @click="checkedOut"
+                >Checkout</a>
               </div>
             </div>
           </div>
@@ -293,6 +296,13 @@
                 if(data.status == "0") {
                 }
               });
+            },
+            checkedOut () {
+              if(this.checkCount > "0") {
+                this.$router.push({
+                  path:'/address'
+                });
+              }
             }
         }
     }
