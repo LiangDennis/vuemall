@@ -108,7 +108,7 @@ router.get("/cartList", (req, res, next) => {
 
 // 购物车删除
 router.post("/cartDel",(req,res,next) => {
-  console.log("删除购物车数据");
+  // console.log("删除购物车数据");
   let userId = req.cookies.userId;
   let productId = req.body.productId;
   User.update({
@@ -277,5 +277,36 @@ router.post("/setDefault",(req,res,next) => {
       }
     });
   }
+});
+
+// 删除地址
+router.post("/delAddress", (req,res,next) => {
+  let userId = req.cookies.userId;
+  let addressId = req.body.addressId;
+  User.update({
+    userId:userId
+  },{
+    // 删除的方式
+    $pull: {
+      "addressList":{
+        "addressId":addressId
+      }
+    }
+  },(err, doc) => {
+    if(err) {
+      res.json({
+        status:"1",
+        msg:err.message,
+        result:""
+      });
+    }else {
+      res.json({
+        status:"0",
+        msg:"",
+        result:"suc"
+      });
+    }
+  }
+);
 });
 module.exports = router;
