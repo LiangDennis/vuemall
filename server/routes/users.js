@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
+require('./../util/util')
+
 /* GET users listing. */
 // router.get('/', function(req, res, next) {
 //   res.send('respond with a resource');
@@ -308,5 +310,82 @@ router.post("/delAddress", (req,res,next) => {
     }
   }
 );
+});
+
+// 生成订单
+router.post("/payMent", (req, res, next)=> {
+  let userId = req.cookies.userId;
+  let orderTotal = req.body.orderTotal;
+  let addressId = req.body.addressId;
+  console.log(addressId);
+
+  // 创建订单的方式，如订单号等等
+  User.findOne({userId:userId}, (err,doc)=> {
+    if(err) {
+      res.json({
+        status:"1",
+        msg:err.message,
+        result:""
+      });
+    }else {
+      let address ="";
+      // 获取当前用户的地址信息，选取选中的地址
+      doc.addressList.forEach(item => {
+        if(addressId == item.addressId) {
+          address = item;
+        }
+      });
+      let goodsList = [];
+      // 获取当前用户购物车的购买商品
+      doc.cartList.filter(item => {
+        if(item.checked == "1") {
+          goodsList.push(item);
+        }
+      });
+
+      // 生成orderId
+      // 平台码
+      let platform = "622";
+      // 随机数
+      let r1 = Math.floor(Math.random()*10);
+      let r2 = Math.floor(Math.random()*10);
+      // 日期时间
+      let sysDate = new Date().Format("yyyyMMddhhmmss");//id值
+      let createDate = new Date().Format("yyyy-MM-dd hh:mm:ss");//时间
+      let orderId = platform+r1+sysDate+r2;//订单Id不一定是唯一的。
+
+      // 生成订单信息
+      let order = {
+        orderId:orderId,
+        orderTotal:orderTotal,
+        addressInfo:address,
+        goodsList:goodsList,
+        orderStatus:"1",
+        createDate:""
+      };
+      doc.orderList.push(order);
+      // 保存到数据库
+      doc.save((err1,doc1) => {
+        if(err1) {
+          res.json({
+            status:"1",
+            msg:err1,message,
+            result:""
+          });
+        }else {
+          // 返回对象
+          res.json({
+            status:"0",
+            msg:"",
+            result:{
+              orderId:order.orderId,
+              orderTotal:order.orderTotal//下一个页面会用到
+            }
+          });
+        }
+      });
+
+    }
+  });
 });
 module.exports = router;
