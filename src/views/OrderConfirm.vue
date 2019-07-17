@@ -180,7 +180,6 @@
             // 生成订单
             payMent() {
                 let addressId = this.$route.query.addressId;
-                console.log(addressId);
                 axios.post("/users/payMent",{
                     addressId:addressId,
                     orderTotal:this.orderTotal
