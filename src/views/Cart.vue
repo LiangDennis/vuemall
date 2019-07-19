@@ -96,7 +96,7 @@
                 <div class="cart-tab-5">
                   <div class="cart-item-opration">
                     <a href="javascript:;" class="item-edit-btn"
-                        @click="delCartComfirm(item.productId)"
+                        @click="delCartComfirm(item)"
                     >
                       <svg class="icon icon-del">
                         <use xlink:href="#icon-del"></use>
@@ -188,7 +188,7 @@
             return{
                 cartList:[],
                 modalComfirm:false,
-                productId:''
+                item:{}
             }
         },
         mounted () {
@@ -235,8 +235,8 @@
                 });
             },
             // 弹框方法
-            delCartComfirm (productId) {
-                this.productId = productId;
+            delCartComfirm (item) {
+                this.item = item;
                 this.modalComfirm = true;
             },
             // 删除购物车
@@ -244,12 +244,13 @@
                 // 可以在代理中使用两个*实现所有请求的代理
                 // 可以直接修改cartList的数据，实现删除，而不是用接口
                 axios.post("/users/cartDel",{
-                    productId:this.productId
+                    productId:this.item.productId
                 }).then(res => {
                     let data = res.data;
                     if(data.status == "0") {
                         this.modalComfirm = false;
                         this.init();
+                        this.$store.commit("uptateCartCount",-this.item.productNum);
                     }
                 });
             },
@@ -275,6 +276,13 @@
                     checked:item.checked
                 }).then(res => {
                     let data = res.data;
+                    let num = 0;
+                    if(flag == "add") {
+                      num =1;
+                    }else if(flag == "minu") {
+                      num =-1;
+                    }
+                    this.$store.commit("uptateCartCount",num);
                 });
             },
             // 选中所有商品

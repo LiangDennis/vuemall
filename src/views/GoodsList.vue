@@ -274,9 +274,8 @@ export default{
         }).then(res => {
           // 一直都需要data才能访问后端接口设置status
           if(res.data.status =="0") {
-            // console.log(res);
-            // alert("加入成功");
             this.mdShowCart = true;
+            this.$store.commit("uptateCartCount",1);
           }else {
             this.mdShow = true;
           }

@@ -25,7 +25,7 @@
             @click="logout"
           >Logout</a>
           <div class="navbar-cart-container">
-            <span class="navbar-cart-count"></span>
+            <span class="navbar-cart-count" v-show="cartCount>0">{{cartCount}}</span>
             <a class="navbar-link navbar-cart-link" href="/#/cart">
               <svg class="navbar-cart-logo">
                 <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-cart"></use>
@@ -79,6 +79,8 @@
 </template>
 <script>
 import axios from 'axios'
+import {mapState} from 'vuex'
+
 export default {
   data () {
     return {
@@ -86,18 +88,29 @@ export default {
       userPwd:"",
       errorTip:false,
       loginModalFlag:false,
-      nickName:""
+      // nickName:""
     }
+  },
+  computed:{
+    ...mapState(['nickName','cartCount'])
+    // nickName () {
+    //   return this.$store.state.nickName;
+    // },
+    // cartCount () {
+    //   return this.$store.state.cartCount;
+    // }
   },
   mounted () {
     this.checkLogin();
   },
   methods: {
     checkLogin() {
-      axios.get("/users/checkLogin").then(res => {
-        let data = res.data;
-        if(data.status == "0") {
-          this.nickName = data.result;
+      axios.get("/users/checkLogin").then(response => {
+        let res = response.data;
+        if(res.status == "0") {
+          // this.nickName = res.result;
+          this.$store.commit("uptateUserInfo",res.result);
+          this.getCartCount();
         }
       });
     },
@@ -116,7 +129,9 @@ export default {
         if(data.status == "0") {
           this.errorTip = false;
           this.loginModalFlag = false;
-          this.nickName = data.result.userName;
+          // this.nickName = data.result.userName;
+          this.$store.commit("uptateUserInfo",data.result.userName);
+          this.getCartCount();
         }else {
           this.errorTip = true;
         }
@@ -126,10 +141,17 @@ export default {
       axios.post("/users/logout").then(res => {
         let data = res.data;
         if(data.status == "0") {
-          this.nickName = "";
+          // this.nickName = "";
+          this.$store.commit("uptateUserInfo","");
         }
       });
     },
+    getCartCount() {
+      axios.get("/users/getCartCount").then(response => {
+        let res = response.data;
+        this.$store.commit("initCartCount",res.result);
+      });
+    }
   }
 }
 </script>
