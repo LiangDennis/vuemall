@@ -34,7 +34,7 @@ app.use((req, res, next) => {
     // 第一种方式来截取/goods/list进入白名单
     // req.originalUrl.indexOf("/goods/list") >-1) {
     // 第二种方式，通过req.path获取的就是/goods/list没有任何参数，参照location.pathname和location.href来实现的。location.pathname就是一个路径不带任何参数，而location.href带参数。
-    req.path == "/goods/list") {
+    req.path == "/goods/list" || req.path == "/goods/sort") {
       next();
     }else {
       // 拦截，返回响应
